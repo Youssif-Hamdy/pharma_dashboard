@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom'
-import { Package, Tag, Building2, Pill, TrendingUp, Mail } from 'lucide-react'
+import { Package, Tag, Building2, Pill, TrendingUp } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { DEFAULT_BRANDS, DEFAULT_CATEGORIES, DEFAULT_PRODUCTS } from '../data/defaultData'
 
