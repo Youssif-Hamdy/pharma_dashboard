@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #1a5c3a;
+  --primary-light: #e8f5ee;
+  --gold: #c9a84c;
+  --gold-light: #f9f3e3;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  direction: rtl;
+  background: #f4f6f5;
+}
+
+/* Dashboard-aligned global scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1a5c3a #e8f5ee;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #e8f5ee;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #1a5c3a, #2f7a53);
+  border-radius: 999px;
+  border: 2px solid #e8f5ee;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #174f32, #276847);
+}
+
+@keyframes toast-animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-animate-in {
+  animation: toast-animate-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
