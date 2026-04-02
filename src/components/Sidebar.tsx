@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Package, Tag,
-  Building2, Pill, LogOut, ChevronRight, X, Mail,
+  Building2, LogOut, ChevronRight, X, Mail,
 } from "lucide-react";
 import logo from "../assets/logo.jpg.jpeg";
 import type { StoredUser } from "../api/authStorage";
