@@ -3,7 +3,7 @@ import { Plus, Pencil, Trash2, Search, X, ChevronDown, ChevronLeft, ChevronRight
 import api from '../api/axios'
 import Navbar from '../components/Navbar'
 import ProductModal from '../components/ProductModal'
-import { DEFAULT_BRANDS, DEFAULT_CATEGORIES, DEFAULT_FALLBACK_MESSAGES, DEFAULT_PRODUCTS } from '../data/defaultData'
+import { DEFAULT_BRANDS, DEFAULT_CATEGORIES, DEFAULT_PRODUCTS } from '../data/defaultData'
 
 interface Product {
   _id: string; name: string; price: number
@@ -31,7 +31,6 @@ function Products() {
   const itemsPerPage = 8
   const [pages, setPages] = useState(1)
   const [total, setTotal] = useState<number | null>(null)
-  const [fetchMessage, setFetchMessage] = useState('')
 
   const fetchAll = async () => {
     setLoading(true)
@@ -65,7 +64,6 @@ function Products() {
       setTotal(totalCount)
       setCategories(Array.isArray(c.data) ? c.data : c.data.data || [])
       setBrands(Array.isArray(b.data) ? b.data : b.data.data || [])
-      setFetchMessage('')
     } catch (e) {
       console.error(e)
       setProducts(DEFAULT_PRODUCTS)
@@ -73,7 +71,6 @@ function Products() {
       setBrands(DEFAULT_BRANDS)
       setPages(1)
       setTotal(DEFAULT_PRODUCTS.length)
-      setFetchMessage(DEFAULT_FALLBACK_MESSAGES.products)
     }
     setLoading(false)
   }
@@ -177,11 +174,6 @@ function Products() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden min-h-[680px]">
-        {fetchMessage && (
-          <div className="mx-6 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
-            {fetchMessage}
-          </div>
-        )}
         <div className="px-6 py-3.5 border-b border-gray-100 flex items-center justify-between">
           <span className="text-sm font-medium text-gray-700">المنتجات</span>
           <span className="text-xs text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">

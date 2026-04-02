@@ -3,7 +3,7 @@ import { Plus, Trash2, Search, Building2, X, ChevronLeft, ChevronRight } from 'l
 import api from '../api/axios'
 import Navbar from '../components/Navbar'
 import { useToast } from '../components/ToastContext'
-import { DEFAULT_BRANDS, DEFAULT_FALLBACK_MESSAGES } from '../data/defaultData'
+import { DEFAULT_BRANDS } from '../data/defaultData'
 
 interface Brand { _id: string; name: string }
 
@@ -83,7 +83,6 @@ function Brands() {
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(1)
   const [total, setTotal] = useState(0)
-  const [fetchMessage, setFetchMessage] = useState('')
 
   const fetchAll = async () => {
     setLoading(true)
@@ -104,13 +103,11 @@ function Brands() {
       setBrands(normalized)
       setPages(raw?.pagination?.pages || 1)
       setTotal(raw?.pagination?.total || normalized.length)
-      setFetchMessage('')
     } catch (error) {
       console.error(error)
       setBrands(DEFAULT_BRANDS)
       setPages(1)
       setTotal(DEFAULT_BRANDS.length)
-      setFetchMessage(DEFAULT_FALLBACK_MESSAGES.brands)
     }
     setLoading(false)
   }
@@ -166,11 +163,6 @@ function Brands() {
         </div>
       ) : (
         <>
-          {fetchMessage && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
-              {fetchMessage}
-            </div>
-          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {brands.map((b) => (
               <div key={b._id}

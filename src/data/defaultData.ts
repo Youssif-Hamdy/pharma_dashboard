@@ -49,13 +49,6 @@ export const DEFAULT_PRODUCTS: DefaultProduct[] = [
   { _id: 'default-product-7', name: 'أوميبرازول 20', price: 66, category: DEFAULT_CATEGORIES[3], brand: DEFAULT_BRANDS[2] },
 ]
 
-export const DEFAULT_FALLBACK_MESSAGES = {
-  products: 'تعذر تحميل المنتجات من السيرفر، تم عرض بيانات افتراضية مؤقتا.',
-  categories: 'تعذر تحميل الفئات من السيرفر، تم عرض بيانات افتراضية مؤقتا.',
-  brands: 'تعذر تحميل الماركات من السيرفر، تم عرض بيانات افتراضية مؤقتا.',
-  messages: 'تعذر تحميل الرسائل من السيرفر، تم عرض رسائل افتراضية مؤقتا.',
-} as const
-
 export const DEFAULT_MESSAGES: DefaultMessage[] = [
   {
     _id: 'default-message-1',

@@ -4,7 +4,7 @@ import axios from 'axios'
 import api from '../api/axios'
 import Navbar from '../components/Navbar'
 import { useToast } from '../components/ToastContext'
-import { DEFAULT_CATEGORIES, DEFAULT_FALLBACK_MESSAGES } from '../data/defaultData'
+import { DEFAULT_CATEGORIES } from '../data/defaultData'
 
 interface Category { _id: string; name: string }
 
@@ -94,7 +94,6 @@ export default function Categories() {
   const [showModal, setShowModal] = useState(false)
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(1)
-  const [fetchMessage, setFetchMessage] = useState('')
 
   const fetchAll = async () => {
     setLoading(true)
@@ -103,12 +102,10 @@ export default function Categories() {
       const data = Array.isArray(res.data) ? res.data : res.data.data
       setCategories(data || [])
       setPages(res.data.pagination?.pages || 1)
-      setFetchMessage('')
     } catch (e) {
       console.error(e)
       setCategories(DEFAULT_CATEGORIES)
       setPages(1)
-      setFetchMessage(DEFAULT_FALLBACK_MESSAGES.categories)
       toast.show({
         type: 'error',
         title: 'فشل تحميل الفئات',
@@ -160,11 +157,6 @@ export default function Categories() {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden min-h-[680px]">
-        {fetchMessage && (
-          <div className="mx-6 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
-            {fetchMessage}
-          </div>
-        )}
         <div className="px-6 py-3.5 border-b border-gray-100 flex items-center justify-between">
           <span className="text-sm font-medium text-gray-700">الفئات</span>
           <span className="text-xs text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">{categories.length} نتيجة</span>

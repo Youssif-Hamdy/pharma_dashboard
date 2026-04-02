@@ -4,7 +4,7 @@ import axios from 'axios'
 import api from '../api/axios'
 import Navbar from '../components/Navbar'
 import { useToast } from '../components/ToastContext'
-import { DEFAULT_FALLBACK_MESSAGES, DEFAULT_MESSAGES } from '../data/defaultData'
+import { DEFAULT_MESSAGES } from '../data/defaultData'
 
 function formatMessagesFetchError(err: unknown): string {
   if (!axios.isAxiosError(err)) return 'تعذر تحميل الرسائل. تحقق من الشبكة وحاول مرة أخرى.'
@@ -316,7 +316,6 @@ export default function Messages() {
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(1)
   const [total, setTotal] = useState(0)
-  const [fetchMessage, setFetchMessage] = useState('')
 
   const fetchAll = async () => {
     setLoading(true)
@@ -326,14 +325,12 @@ export default function Messages() {
       setItems(list)
       setPages(p)
       setTotal(t)
-      setFetchMessage('')
     } catch (e) {
       console.error(e)
       const desc = formatMessagesFetchError(e)
       setItems(DEFAULT_MESSAGES)
       setPages(1)
       setTotal(DEFAULT_MESSAGES.length)
-      setFetchMessage(DEFAULT_FALLBACK_MESSAGES.messages)
       toast.show({
         type: 'error',
         title: 'فشل تحميل الرسائل',
@@ -398,7 +395,7 @@ export default function Messages() {
       <Navbar title="الرسائل" />
 
       <div className="flex flex-wrap justify-between items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 px-4 py-3 shadow-sm">
-        <p className="text-sm text-gray-500">إدارة رسائل التواصل — إنشاء، عرض، تعديل وحذف</p>
+        <p className="text-sm text-gray-500">إدارة رسائل التواصل </p>
         <button
           type="button"
           onClick={() => setShowAdd(true)}
@@ -410,11 +407,6 @@ export default function Messages() {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden flex-1">
-        {fetchMessage && (
-          <div className="mx-6 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
-            {fetchMessage}
-          </div>
-        )}
         <div className="px-6 py-3.5 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
           <span className="text-sm font-medium text-gray-700">قائمة الرسائل</span>
           <span className="text-xs text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">{total} رسالة</span>
