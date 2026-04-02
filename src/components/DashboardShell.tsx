@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
-import { fetchMe } from '../api/auth'
-import { getStoredToken, getStoredUser, type StoredUser } from '../api/authStorage'
+import { getStoredUser, type StoredUser } from '../api/authStorage'
 
 type Props = {
   mobileOpen: boolean
@@ -10,17 +9,11 @@ type Props = {
 }
 
 function DashboardShell({ mobileOpen, onCloseMobile }: Props) {
-  const location = useLocation()
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
   const [user, setUser] = useState<StoredUser | null>(() => getStoredUser())
 
-  useEffect(() => {
-    if (!getStoredToken() || getStoredUser()) return
-    fetchMe()
-      .then(d => setUser({ id: d.user.id, email: d.user.email }))
-      .catch(() => {})
-  }, [])
+  useEffect(() => { setUser(getStoredUser()) }, [])
 
   useEffect(() => {
     if (mobileOpen) {
@@ -32,10 +25,6 @@ function DashboardShell({ mobileOpen, onCloseMobile }: Props) {
     const id = setTimeout(() => setMounted(false), 300)
     return () => clearTimeout(id)
   }, [mobileOpen])
-
-  if (!getStoredToken()) {
-    return <Navigate to="/login" replace state={{ from: location }} />
-  }
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
