@@ -6,7 +6,7 @@ import Products from './pages/Products'
 import Categories from './pages/Categories'
 import Brands from './pages/Brands'
 import Messages from './pages/Messages'
-import Login from './pages/Login'
+// import Login from './pages/Login'
 import { SidebarProvider } from './context/SidebarContext'
 import { NotificationProvider } from './components/NotificationContext'
 import { ToastProvider } from './components/ToastContext'
@@ -20,7 +20,7 @@ function App() {
         <ToastProvider>
           <BrowserRouter>
             <Routes>
-              <Route path="/login" element={<Login />} />
+              {/* <Route path="/login" element={<Login />} /> */}
               <Route
                 element={
                   <DashboardShell mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
