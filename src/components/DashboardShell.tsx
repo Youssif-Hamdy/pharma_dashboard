@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
-import { getStoredUser, type StoredUser } from '../api/authStorage'
+import { fetchMe } from '../api/auth'
+import { getStoredToken, getStoredUser, type StoredUser } from '../api/authStorage'
 
 type Props = {
   mobileOpen: boolean
@@ -9,11 +10,17 @@ type Props = {
 }
 
 function DashboardShell({ mobileOpen, onCloseMobile }: Props) {
+  const location = useLocation()
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
   const [user, setUser] = useState<StoredUser | null>(() => getStoredUser())
 
-  useEffect(() => { setUser(getStoredUser()) }, [])
+  useEffect(() => {
+    if (!getStoredToken() || getStoredUser()) return
+    fetchMe()
+      .then(d => setUser({ id: d.user.id, email: d.user.email }))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (mobileOpen) {
@@ -26,14 +33,18 @@ function DashboardShell({ mobileOpen, onCloseMobile }: Props) {
     return () => clearTimeout(id)
   }, [mobileOpen])
 
+  if (!getStoredToken()) {
+    return <Navigate to="/login" replace state={{ from: location }} />
+  }
+
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <div className="hidden md:block shrink-0">
+    <div className="flex h-screen min-h-0 bg-gray-50 overflow-hidden">
+      <div className="hidden md:block shrink-0 h-full min-h-0">
         <Sidebar user={user} />
       </div>
 
-      <main className="flex-1 h-full overflow-auto p-6 min-w-0 flex">
-        <div className="flex-1 min-h-full flex flex-col [&>*]:min-h-full">
+      <main className="flex-1 min-h-0 h-full overflow-y-auto overscroll-y-contain p-6 min-w-0">
+        <div className="w-full min-w-0">
           <Outlet />
         </div>
       </main>

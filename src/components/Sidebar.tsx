@@ -20,7 +20,6 @@ const links = [
   { path: "/categories", label: "الفئات",   icon: Tag },
   { path: "/brands",     label: "الماركات", icon: Building2 },
   { path: "/messages",   label: "الرسائل",  icon: Mail },
-  { path: "/medicines",  label: "الأدوية",  icon: Pill },
 ];
 
 interface SidebarProps {
