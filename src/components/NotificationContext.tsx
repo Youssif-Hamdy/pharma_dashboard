@@ -46,11 +46,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     const channel = pusher.subscribe('pharma-channel')
 
-    const events = [
-      'product-created', 'product-updated', 'product-deleted',
-      'brand-created', 'brand-updated', 'brand-deleted',
-      'category-created', 'category-updated', 'category-deleted'
-    ]
+    const events = ['order-created', 'order-updated', 'order-deleted']
 
     events.forEach(event => {
       channel.bind(event, (data: any) => {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Package, Tag,
-  Building2, LogOut, ChevronRight, X, Mail,
+  Building2, LogOut, ChevronRight, X, Mail, ClipboardList,
 } from "lucide-react";
 import logo from "../assets/logo.jpg.jpeg";
 import type { StoredUser } from "../api/authStorage";
@@ -20,6 +20,7 @@ const links = [
   { path: "/categories", label: "الفئات",   icon: Tag },
   { path: "/brands",     label: "الماركات", icon: Building2 },
   { path: "/messages",   label: "الرسائل",  icon: Mail },
+  { path: "/orders-apis", label: "الأوردرات", icon: ClipboardList },
 ];
 
 interface SidebarProps {

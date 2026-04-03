@@ -6,6 +6,7 @@ import Products from './pages/Products'
 import Categories from './pages/Categories'
 import Brands from './pages/Brands'
 import Messages from './pages/Messages'
+import OrdersApis from './pages/OrdersApis'
 import Login from './pages/Login'
 import { SidebarProvider } from './context/SidebarContext'
 import { NotificationProvider } from './components/NotificationContext'
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/brands" element={<Brands />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/orders-apis" element={<OrdersApis />} />
               </Route>
             </Routes>
           </BrowserRouter>

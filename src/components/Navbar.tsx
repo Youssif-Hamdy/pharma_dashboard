@@ -1,15 +1,11 @@
 // Navbar.tsx
-import { Bell, Menu, Package, Tag, Grid } from 'lucide-react'
+import { Bell, Menu, ClipboardList } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useSidebar } from '../context/SidebarContext'
 import { useNotifications } from './NotificationContext'
 import { getStoredUser } from '../api/authStorage'
 
-const eventIcon = (event: string) => {
-  if (event.startsWith('product')) return <Package size={14} />
-  if (event.startsWith('brand')) return <Tag size={14} />
-  return <Grid size={14} />
-}
+const eventIcon = () => <ClipboardList size={14} />
 
 const eventColor = (event: string) => {
   if (event.includes('created')) return 'text-emerald-500 bg-emerald-50'
@@ -117,7 +113,7 @@ function Navbar({ title }: Props) {
                     className={`flex gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${!n.read ? 'bg-blue-50/40' : ''}`}
                   >
                     <div className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${eventColor(n.event)}`}>
-                      {eventIcon(n.event)}
+                      {eventIcon()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-700 leading-snug">{n.message}</p>
