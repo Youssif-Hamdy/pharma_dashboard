@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import  { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { RefreshCw, Trash2, MapPin, ChevronDown } from 'lucide-react'
 import L from 'leaflet'

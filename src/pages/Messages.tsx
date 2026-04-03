@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type CSSProperties } from 'react'
+import  { useEffect, useState, type CSSProperties } from 'react'
 import { Plus, Trash2, Mail, X, Pencil } from 'lucide-react'
 import axios from 'axios'
 import api from '../api/axios'
