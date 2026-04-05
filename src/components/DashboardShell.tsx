@@ -18,6 +18,7 @@ function DashboardShell({ mobileOpen, onCloseMobile }: Props) {
   useEffect(() => {
     if (!getStoredToken() || getStoredUser()) return
     fetchMe()
+    // @ts-ignore
       .then(d => setUser({ id: d.user.id, email: d.user.email }))
       .catch(() => {})
   }, [])

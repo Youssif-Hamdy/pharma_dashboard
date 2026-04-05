@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -40,7 +40,6 @@ function Sidebar({ isMobile, onCloseMobile, user }: SidebarProps) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
-  // ✅ Mobile — بيعرض نفسه بس، الأنيميشن في App.tsx
   if (isMobile) {
     return (
       <div className="relative h-full bg-white border-l border-gray-100 flex flex-col p-4 gap-1 shadow-xl w-80 max-w-xs">
@@ -62,7 +61,6 @@ function Sidebar({ isMobile, onCloseMobile, user }: SidebarProps) {
     );
   }
 
-  // ✅ Desktop — collapse عادي
   return (
     <div
       className={`relative h-full bg-white border-l border-gray-100 flex flex-col p-4 gap-1 shadow-sm transition-all duration-300 ${
@@ -103,6 +101,13 @@ function SidebarContent({
   onClose?: () => void;
   user?: StoredUser | null;
 }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   const displayEmail = user?.email ?? "—";
   const initial = user?.email ? avatarInitial(user.email) : "؟";
 
@@ -116,7 +121,7 @@ function SidebarContent({
         />
         {!collapsed && (
           <span className="text-xs text-gray-400 bg-gray-50 px-3 py-0.5 rounded-full">
-            لوحة التحكم
+            لوح التحكم
           </span>
         )}
       </div>
@@ -145,7 +150,8 @@ function SidebarContent({
 
       <div className="border-t border-gray-100 pt-3 w-full">
         <div
-          className={`flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 ${
+          onClick={handleLogout}
+          className={`flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 cursor-pointer transition-colors ${
             collapsed && !isMobile ? "justify-center !px-0" : ""
           }`}
         >
@@ -161,7 +167,7 @@ function SidebarContent({
                 <p className="text-xs font-medium text-gray-700">الأدمن</p>
                 <p className="text-xs text-gray-400 truncate">{displayEmail}</p>
               </div>
-              <LogOut size={15} className="text-gray-400 shrink-0" />
+              <LogOut size={15} className="text-red-400 shrink-0" />
             </>
           )}
         </div>
