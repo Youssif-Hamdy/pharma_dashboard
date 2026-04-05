@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Package, Tag,
-  Building2, LogOut, ChevronRight, X, Mail, ClipboardList,
+  LayoutDashboard,
+  Package,
+  Tag,
+  Building2,
+  LogOut,
+  ChevronRight,
+  X,
+  Mail,
+  ClipboardList,
 } from "lucide-react";
 import logo from "../assets/logo.jpg.jpeg";
 import type { StoredUser } from "../api/authStorage";
@@ -84,7 +91,11 @@ function Sidebar({ isMobile, onCloseMobile, user }: SidebarProps) {
 }
 
 function SidebarContent({
-  collapsed, isMobile, location, onClose, user,
+  collapsed,
+  isMobile,
+  location,
+  onClose,
+  user,
 }: {
   collapsed: boolean;
   isMobile: boolean;

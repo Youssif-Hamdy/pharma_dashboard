@@ -9,7 +9,7 @@ export type AuthUser = {
 }
 
 type AuthData = {
-  user: AuthUser
+  admin: AuthUser   // ← كان user
   token: string
 }
 
@@ -20,15 +20,15 @@ type AuthApiEnvelope = {
 }
 
 export async function login(email: string, password: string): Promise<AuthData> {
-  const { data } = await api.post<AuthApiEnvelope>('/auth/login', { email, password })
+  const { data } = await api.post<AuthApiEnvelope>('/admin/auth/login', { email, password }) // ← شيل /api
   if (!data.success || !data.data?.token) {
     throw new Error(data.message || 'فشل تسجيل الدخول')
   }
   setStoredToken(data.data.token)
   setStoredUser({
-    id: data.data.user.id,
-    email: data.data.user.email,
-    name: data.data.user.name,
+    id: data.data.admin.id,       // ← كان user
+    email: data.data.admin.email, // ← كان user
+    name: data.data.admin.name,   // ← كان user
   })
   return data.data
 }
@@ -40,9 +40,9 @@ export async function fetchMe(): Promise<AuthData> {
   }
   setStoredToken(data.data.token)
   setStoredUser({
-    id: data.data.user.id,
-    email: data.data.user.email,
-    name: data.data.user.name,
+    id: data.data.admin.id,       // ← كان user
+    email: data.data.admin.email, // ← كان user
+    name: data.data.admin.name,   // ← كان user
   })
   return data.data
 }

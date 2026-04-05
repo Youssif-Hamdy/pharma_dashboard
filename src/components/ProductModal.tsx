@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronDown, Upload, Trash2, Check, Search } from "lucide-react";
+import { X, ChevronDown, Upload, Trash2, Check, Search, Star, Tag } from "lucide-react";
 
 interface Category {
   _id: string;
@@ -16,6 +16,10 @@ export interface ProductForm {
   price: string;
   category: string;
   brand: string;
+  isOffer: boolean;
+  offerDiscountPercent: string;
+  offerDiscountAmount: string;
+  isBestSeller: boolean;
 }
 
 type Phase = "closed" | "open" | "closing";
@@ -58,6 +62,41 @@ const modalStyle: Record<Phase, CSSProperties> = {
   },
 };
 
+// ─── Toggle Switch ─────────────────────────────────────────────────
+function Toggle({
+  checked,
+  onChange,
+  color = "green",
+}: {
+  checked: boolean;
+  onChange: () => void;
+  color?: "green" | "amber";
+}) {
+  const bg = checked
+    ? color === "amber"
+      ? "#f59e0b"
+      : "#22c55e"
+    : "#e5e7eb";
+
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      role="switch"
+      aria-checked={checked}
+      className="relative shrink-0 w-11 h-6 rounded-full transition-colors duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1"
+      style={{
+        backgroundColor: bg,
+      }}
+    >
+      <span
+        className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200"
+        style={{ [checked ? "right" : "left"]: "2px" }}
+      />
+    </button>
+  );
+}
+
 // ─── Portal Dropdown ───────────────────────────────────────────────
 interface DropdownProps {
   label: string;
@@ -91,7 +130,6 @@ function CustomDropdown({
     setOpen(true);
   };
 
-  // close on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -105,12 +143,10 @@ function CustomDropdown({
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
-  // focus search on open
   useEffect(() => {
     if (open) setTimeout(() => searchRef.current?.focus(), 60);
   }, [open]);
 
-  // reposition on resize/scroll
   useEffect(() => {
     if (!open) return;
     const update = () => {
@@ -438,7 +474,7 @@ export default function ProductModal({
             min={0}
             step="any"
             placeholder="0"
-            value={form.price ?? ''}
+            value={form.price ?? ""}
             onChange={(e) => onChange({ ...form, price: e.target.value })}
             className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all hover:border-gray-300"
           />
@@ -461,6 +497,128 @@ export default function ProductModal({
           options={brands}
           onChange={(val) => onChange({ ...form, brand: val })}
         />
+
+        {/* ── Offers & Best Seller Section ── */}
+        <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
+          {/* Section header */}
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+            العروض والمميزات
+          </p>
+
+          {/* Best Seller toggle */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
+                <Star size={15} className="text-amber-400" fill="#fbbf24" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700 leading-none mb-0.5">
+                  الأكثر مبيعاً
+                </p>
+                <p className="text-xs text-gray-400">يظهر في قسم Best Sellers</p>
+              </div>
+            </div>
+            <Toggle
+              checked={form.isBestSeller}
+              onChange={() => onChange({ ...form, isBestSeller: !form.isBestSeller })}
+              color="amber"
+            />
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-gray-100" />
+
+          {/* Offer toggle */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center shrink-0">
+                <Tag size={15} className="text-green-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700 leading-none mb-0.5">
+                  عرض خاص
+                </p>
+                <p className="text-xs text-gray-400">تفعيل خصم على المنتج</p>
+              </div>
+            </div>
+            <Toggle
+              checked={form.isOffer}
+              onChange={() =>
+                onChange({
+                  ...form,
+                  isOffer: !form.isOffer,
+                  offerDiscountPercent: "",
+                  offerDiscountAmount: "",
+                })
+              }
+              color="green"
+            />
+          </div>
+
+          {/* Offer discount fields — slide in when isOffer is true */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateRows: form.isOffer ? "1fr" : "0fr",
+              transition: "grid-template-rows 220ms cubic-bezier(0.4,0,0.2,1)",
+            }}
+          >
+            <div className="overflow-hidden">
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                {/* Discount Percent */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-gray-500 font-medium">
+                    نسبة الخصم
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      placeholder="0"
+                      value={form.offerDiscountPercent}
+                      onChange={(e) =>
+                        onChange({
+                          ...form,
+                          offerDiscountPercent: e.target.value,
+                        })
+                      }
+                      className="w-full pr-3 pl-8 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 bg-white transition-all"
+                    />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold pointer-events-none">
+                      %
+                    </span>
+                  </div>
+                </div>
+
+                {/* Discount Amount */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs text-gray-500 font-medium">
+                    مبلغ الخصم
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      value={form.offerDiscountAmount}
+                      onChange={(e) =>
+                        onChange({
+                          ...form,
+                          offerDiscountAmount: e.target.value,
+                        })
+                      }
+                      className="w-full pr-3 pl-12 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 bg-white transition-all"
+                    />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">
+                      ج.م
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Buttons */}
         <div className="flex gap-3 justify-end pt-2 border-t border-gray-50 mt-1">
