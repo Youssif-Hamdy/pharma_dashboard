@@ -8,16 +8,19 @@ import {
 } from "../../data/defaultData";
 
 export interface Product {
-  _id: string;
+  _id: string;          // normalised from `id` after fetch
+  id?: string;          // raw field returned by the API
   name: string;
   price: number;
-  category: { _id: string; name: string } | string;
-  brand: { _id: string; name: string } | string;
+  category: { _id: string; name: string } | string | null;
+  brand: { _id: string; name: string } | string | null;
   image?: { url: string; fileId: string; thumbnailUrl: string };
   isOffer?: boolean;
   offerDiscountPercent?: number;
   offerDiscountAmount?: number;
   isBestSeller?: boolean;
+  isAvailable?: boolean;
+  quantity?: number;
 }
 
 export interface Category {
@@ -30,8 +33,8 @@ export interface Brand {
   name: string;
 }
 
-export const getName = (c: { _id: string; name: string } | string) =>
-  typeof c === "object" ? c.name : c;
+export const getName = (c: { _id: string; name: string } | string | null | undefined): string =>
+  c == null ? "" : typeof c === "object" ? c.name : c;
 
 export type ProductsViewMode = "table" | "cards";
 
@@ -60,6 +63,8 @@ export function useProductsPage() {
     offerDiscountPercent: "",
     offerDiscountAmount: "",
     isBestSeller: false,
+    isAvailable: true,
+    quantity: "",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [search, setSearch] = useState("");
@@ -113,8 +118,9 @@ export function useProductsPage() {
       if (isOfferFilter) params.isOffer = "true";
       if (isBestsellerFilter) params.isBestSeller = "true";
 
+      const endpoint = "/products";
       const [p, c, b] = await Promise.all([
-        api.get("/products", { params }),
+        api.get(endpoint, { params }),
         api.get("/categories", { params: { limit: 1000 } }),
         api.get("/brands", { params: { limit: 1000 } }),
       ]);
@@ -134,7 +140,17 @@ export function useProductsPage() {
             : data.length >= itemsPerPage
               ? currentPage + 1
               : currentPage;
+      // Normalize: API returns `id`, map it to `_id` so all code uses one field
+      // Also map imageUrl, imageFileId, imageThumbnailUrl to image object
+      data = data.map((x: any) => ({
+        ...x,
+        _id: x._id || x.id || "",
+        image: x.image || (x.imageUrl ? { url: x.imageUrl, fileId: x.imageFileId, thumbnailUrl: x.imageThumbnailUrl } : undefined)
+      }));
+
       setProducts(data);
+
+
       setPages(pageCount);
       setTotal(totalCount);
       setCategories(Array.isArray(c.data) ? c.data : c.data.data || []);
@@ -175,6 +191,8 @@ export function useProductsPage() {
       offerDiscountPercent: "",
       offerDiscountAmount: "",
       isBestSeller: false,
+      isAvailable: true,
+      quantity: "",
     });
     setImageFile(null);
     setShowModal(true);
@@ -191,6 +209,8 @@ export function useProductsPage() {
       offerDiscountPercent: String(p.offerDiscountPercent ?? ""),
       offerDiscountAmount: String(p.offerDiscountAmount ?? ""),
       isBestSeller: p.isBestSeller ?? false,
+      isAvailable: p.isAvailable ?? true,
+      quantity: String(p.quantity ?? ""),
     });
     setImageFile(null);
     setShowModal(true);
@@ -198,6 +218,12 @@ export function useProductsPage() {
 
   const handleSave = async () => {
     if (!form.name || !form.price) return;
+
+    // Guard: editing mode requires a valid id
+    if (editing && !editing._id) {
+      toast.error("تعذر حفظ التعديل", "معرف المنتج غير متاح.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("name", form.name.trim());
@@ -214,18 +240,22 @@ export function useProductsPage() {
     if (form.isOffer && form.offerDiscountAmount)
       formData.append("offerDiscountAmount", form.offerDiscountAmount);
 
+    // Warehouse & Products fields — quantity must always be a whole integer
+    formData.append("isAvailable", String(form.isAvailable));
+    const qty = form.quantity !== "" ? Math.floor(Number(form.quantity)) : 0;
+    formData.append("quantity", String(qty));
+
     try {
-      editing
-        ? await api.put(`/products/${editing._id}`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          })
-        : await api.post("/products", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
+      if (editing) {
+        await api.put(`/products/${editing._id}`, formData);
+      } else {
+        await api.post("/products", formData);
+      }
       setShowModal(false);
       await fetchAll();
     } catch (e) {
       console.error(e);
+      toast.error("تعذر حفظ المنتج", "تحقق من الاتصال أو حاول مرة أخرى.");
     }
   };
 
@@ -237,6 +267,10 @@ export function useProductsPage() {
       cancelLabel: "إلغاء",
     });
     if (!ok) return;
+    if (!id) {
+      toast.error("تعذر حذف المنتج", "معرف المنتج غير متاح.");
+      return;
+    }
     try {
       await api.delete(`/products/${id}`);
       await fetchAll();
@@ -246,6 +280,9 @@ export function useProductsPage() {
       toast.error("تعذر حذف المنتج", "تحقق من الاتصال أو حاول مرة أخرى.");
     }
   };
+
+
+
 
   const clearFilters = () => {
     setFilterCategory("");

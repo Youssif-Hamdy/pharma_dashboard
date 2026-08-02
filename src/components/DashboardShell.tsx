@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import { fetchMe } from '../api/auth'
 import { getStoredToken, getStoredUser, type StoredUser } from '../api/authStorage'
+import Navbar from './Navbar'
 
 type Props = {
   mobileOpen: boolean
@@ -14,6 +15,16 @@ function DashboardShell({ mobileOpen, onCloseMobile }: Props) {
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
   const [user, setUser] = useState<StoredUser | null>(() => getStoredUser())
+
+  const getPageTitle = (pathname: string) => {
+    if (pathname === '/') return 'الرئيسية'
+    if (pathname.startsWith('/products')) return 'المنتجات'
+    if (pathname.startsWith('/categories')) return 'الفئات'
+    if (pathname.startsWith('/brands')) return 'الماركات'
+    if (pathname.startsWith('/messages')) return 'الرسائل'
+    if (pathname.startsWith('/orders-apis')) return 'طلبات'
+    return 'لوحة التحكم'
+  }
 
   useEffect(() => {
     if (!getStoredToken() || getStoredUser()) return
@@ -39,16 +50,19 @@ function DashboardShell({ mobileOpen, onCloseMobile }: Props) {
   }
 
   return (
-    <div className="flex h-screen min-h-0 bg-gray-50 overflow-hidden">
-      <div className="hidden md:block shrink-0 h-full min-h-0">
+    <div className="flex h-screen min-h-0 bg-[#F8FAFC] overflow-hidden">
+      <div className="hidden md:block shrink-0 h-full min-h-0 z-20">
         <Sidebar user={user} />
       </div>
 
-      <main className="flex-1 min-h-0 h-full overflow-y-auto overscroll-y-contain p-6 min-w-0">
-        <div className="w-full min-w-0">
-          <Outlet />
-        </div>
-      </main>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <Navbar title={getPageTitle(location.pathname)} />
+        <main className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain p-4 sm:p-8">
+          <div className="w-full min-w-0">
+            <Outlet />
+          </div>
+        </main>
+      </div>
 
       {mounted && (
         <div

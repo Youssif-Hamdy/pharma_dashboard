@@ -1,5 +1,4 @@
 import { Package, Tag, Building2, Pill, TrendingUp } from 'lucide-react'
-import Navbar from '../components/Navbar'
 import { DEFAULT_BRANDS, DEFAULT_CATEGORIES, DEFAULT_PRODUCTS } from '../data/defaultData'
 
 function Dashboard() {
@@ -20,7 +19,6 @@ function Dashboard() {
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 pb-20 w-full min-w-0">
-      <Navbar title="الرئيسية" />
 
       {/* إحصائيات — شبكة ٢×٢ على التلفون، صف واحد على الشاشات العريضة */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

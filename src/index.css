@@ -10,7 +10,7 @@
 body {
   font-family: 'Segoe UI', sans-serif;
   direction: rtl;
-  background: #f4f6f5;
+  background: #F8FAFC;
 }
 
 /* Dashboard-aligned global scrollbar styling */
@@ -52,4 +52,19 @@ body {
 
 .toast-animate-in {
   animation: toast-animate-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

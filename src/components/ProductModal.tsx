@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronDown, Upload, Trash2, Check, Search, Star, Tag } from "lucide-react";
+import { X, ChevronDown, Upload, Trash2, Check, Search, Star, Tag, Package } from "lucide-react";
 
 interface Category {
   _id: string;
@@ -20,6 +20,8 @@ export interface ProductForm {
   offerDiscountPercent: string;
   offerDiscountAmount: string;
   isBestSeller: boolean;
+  isAvailable: boolean;
+  quantity: string;
 }
 
 type Phase = "closed" | "open" | "closing";
@@ -480,6 +482,26 @@ export default function ProductModal({
           />
         </div>
 
+        {/* Quantity */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-gray-500 px-0.5">
+            الكمية في المخزن
+          </label>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            placeholder="0"
+            value={form.quantity}
+            onChange={(e) => onChange({ ...form, quantity: e.target.value })}
+            onBlur={(e) => {
+              const val = e.target.value;
+              if (val !== "") onChange({ ...form, quantity: String(Math.floor(Number(val))) });
+            }}
+            className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all hover:border-gray-300"
+          />
+        </div>
+
         {/* Category */}
         <CustomDropdown
           label="الفئة"
@@ -502,8 +524,31 @@ export default function ProductModal({
         <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
           {/* Section header */}
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
-            العروض والمميزات
+            حالة المنتج والمميزات
           </p>
+
+          {/* isAvailable toggle */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                <Package size={15} className="text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700 leading-none mb-0.5">
+                  معروض للبيع
+                </p>
+                <p className="text-xs text-gray-400">تفعيل لعرضه للزبائن أو إيقافه ليظل في المخزن</p>
+              </div>
+            </div>
+            <Toggle
+              checked={form.isAvailable}
+              onChange={() => onChange({ ...form, isAvailable: !form.isAvailable })}
+              color="green"
+            />
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-gray-100" />
 
           {/* Best Seller toggle */}
           <div className="flex items-center justify-between gap-3">

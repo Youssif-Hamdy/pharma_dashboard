@@ -22,6 +22,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
 
   useEffect(() => {
+    let destroyed = false
+
     const pusher = new Pusher('2c74e166168870fe943d', {
       cluster: 'eu',
       forceTLS: true,
@@ -33,15 +35,15 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     })
 
     pusher.connection.bind('connected', () => {
-      console.log('✅ Pusher connected successfully!')
+      if (!destroyed) console.log('✅ Pusher connected successfully!')
     })
 
     pusher.connection.bind('error', (err: any) => {
-      console.error('❌ Pusher error:', err)
+      if (!destroyed) console.error('❌ Pusher error:', err)
     })
 
     pusher.connection.bind('failed', () => {
-      console.error('❌ Pusher connection failed')
+      if (!destroyed) console.error('❌ Pusher connection failed')
     })
 
     const channel = pusher.subscribe('pharma-channel')
@@ -50,6 +52,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     events.forEach(event => {
       channel.bind(event, (data: any) => {
+        if (destroyed) return
         console.log(`📢 Event received: ${event}`, data)
         setNotifications(prev => [{
           id: crypto.randomUUID(),
@@ -62,10 +65,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     })
 
     return () => {
+      destroyed = true
       pusher.unsubscribe('pharma-channel')
       pusher.disconnect()
     }
   }, [])
+
 
   const unreadCount = notifications.filter(n => !n.read).length
 

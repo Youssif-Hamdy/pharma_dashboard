@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import api from "../api/axios";
-import Navbar from "../components/Navbar";
 import { useToast } from "../components/ToastContext";
 import { DEFAULT_MESSAGES } from "../data/defaultData";
 import {
@@ -107,7 +106,6 @@ export default function Messages() {
 
   return (
     <div className="flex flex-col gap-6 min-h-[calc(100vh-3rem)]">
-      <Navbar title="الرسائل" />
 
       <div className="flex flex-wrap justify-between items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-100 px-4 py-3 shadow-sm">
         <p className="text-sm text-gray-500">إدارة رسائل التواصل </p>

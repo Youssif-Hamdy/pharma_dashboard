@@ -12,8 +12,11 @@ import {
   Table2,
   Star,
   Tag,
+  Upload,
+  PackageX,
 } from "lucide-react";
 import ProductModal from "../../components/ProductModal";
+import CustomSelect from "../../components/CustomSelect";
 import type {
   Product,
   ProductsViewMode,
@@ -64,6 +67,28 @@ const glassStyles = `
     from { opacity: 0; transform: translateY(24px) scale(0.97); }
     to   { opacity: 1; transform: translateY(0)    scale(1);    }
   }
+  @keyframes floatPkg {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-13px) rotate(2deg); }
+  }
+  @keyframes orbitPkg {
+    from { transform: rotate(0deg) translateX(46px); }
+    to   { transform: rotate(360deg) translateX(46px); }
+  }
+  @keyframes orbitPkg2 {
+    from { transform: rotate(90deg) translateX(36px); }
+    to   { transform: rotate(450deg) translateX(36px); }
+  }
+  @keyframes fadeUpPkg {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .pkg-float  { animation: floatPkg 3s ease-in-out infinite; }
+  .pkg-orbit  { animation: orbitPkg 2.5s linear infinite; transform-origin:0 0; }
+  .pkg-orbit2 { animation: orbitPkg2 2.5s linear infinite; transform-origin:0 0; }
+  .pkg-fu     { animation: fadeUpPkg .5s cubic-bezier(.22,1,.36,1) both; }
+  .pkg-fu2    { animation: fadeUpPkg .5s cubic-bezier(.22,1,.36,1) .1s both; }
+  .pkg-fu3    { animation: fadeUpPkg .5s cubic-bezier(.22,1,.36,1) .2s both; }
   @keyframes badgePop {
     0%   { transform: scale(0.7); opacity: 0; }
     70%  { transform: scale(1.1); }
@@ -113,10 +138,15 @@ const glassStyles = `
   .glass-img-wrapper {
     position: relative;
     width: 100%;
-    padding-top: 70%;        /* 10:7 ratio — taller than 4:3, easier on the eye */
+    padding-top: 60%;
     overflow: hidden;
     background: #f1f5f9;
     z-index: 1;
+  }
+  @media (min-width: 640px) {
+    .glass-img-wrapper {
+      padding-top: 70%;
+    }
   }
   .glass-img-wrapper img {
     position: absolute;
@@ -198,6 +228,23 @@ const glassStyles = `
     white-space: nowrap;
   }
 
+  .glass-badge-out-of-stock {
+    animation: badgePop 0.38s cubic-bezier(0.22,1,0.36,1) 0.12s both;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #991b1b;
+    background: rgba(254,242,242,0.92);
+    border: 1px solid rgba(248,113,113,0.4);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(239,68,68,0.2);
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
   /* ── Card body ── */
   .glass-card-body {
     position: relative;
@@ -205,8 +252,14 @@ const glassStyles = `
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: 14px 16px 14px;
-    gap: 10px;
+    padding: 10px;
+    gap: 8px;
+  }
+  @media (min-width: 640px) {
+    .glass-card-body {
+      padding: 14px 16px 14px;
+      gap: 10px;
+    }
   }
 
   /* ── Price tag ── */
@@ -223,38 +276,45 @@ const glassStyles = `
 
   /* ── Chips ── */
   .glass-chip-category {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
     color: #1d4ed8;
     background: rgba(219,234,254,0.75);
     border: 1px solid rgba(147,197,253,0.45);
-    padding: 3px 10px;
+    padding: 2px 6px;
     border-radius: 999px;
     transition: transform 0.18s;
   }
   .glass-chip-category:hover { transform: scale(1.04); }
   .glass-chip-brand {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
     color: #6d28d9;
     background: rgba(237,233,254,0.75);
     border: 1px solid rgba(196,181,253,0.45);
-    padding: 3px 10px;
+    padding: 2px 6px;
     border-radius: 999px;
     transition: transform 0.18s;
   }
   .glass-chip-brand:hover { transform: scale(1.04); }
 
+  @media (min-width: 640px) {
+    .glass-chip-category, .glass-chip-brand {
+      font-size: 11px;
+      padding: 3px 10px;
+    }
+  }
+
   /* ── Action buttons ── */
   .glass-btn-edit {
     flex: 1;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    font-size: 11px; font-weight: 600;
     color: #374151;
     background: rgba(249,250,251,0.8);
     border: 1px solid rgba(209,213,219,0.7);
-    border-radius: 12px;
-    padding: 9px 0;
+    border-radius: 10px;
+    padding: 6px 0;
     cursor: pointer;
     transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
   }
@@ -265,13 +325,13 @@ const glassStyles = `
   }
   .glass-btn-delete {
     flex: 1;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    font-size: 11px; font-weight: 600;
     color: #dc2626;
     background: rgba(254,242,242,0.8);
     border: 1px solid rgba(252,165,165,0.45);
-    border-radius: 12px;
-    padding: 9px 0;
+    border-radius: 10px;
+    padding: 6px 0;
     cursor: pointer;
     transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
   }
@@ -279,6 +339,15 @@ const glassStyles = `
     background: rgba(254,226,226,0.95);
     transform: translateY(-1px);
     box-shadow: 0 3px 10px rgba(239,68,68,0.13);
+  }
+
+  @media (min-width: 640px) {
+    .glass-btn-edit, .glass-btn-delete {
+      font-size: 12px;
+      gap: 6px;
+      padding: 9px 0;
+      border-radius: 12px;
+    }
   }
 
   /* ── Grid background ── */
@@ -300,7 +369,7 @@ function PaginationBar({
   setCurrentPage: Dispatch<SetStateAction<number>>;
 }) {
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 md:px-6 py-3 border-t border-gray-100 bg-white">
+    <div className="mt-auto flex flex-col md:flex-row items-center justify-between gap-3 px-4 md:px-6 py-3 border-t border-gray-100 bg-white">
       <span className="text-xs text-gray-400 whitespace-nowrap">
         صفحة {currentPage} من {pages}
       </span>
@@ -388,85 +457,73 @@ export default function ProductsViews(p: ProductsViewsProps) {
 
       <div className="flex flex-wrap md:flex-nowrap justify-between items-center gap-3">
         <div className="flex flex-wrap gap-3 flex-1 items-center">
-          <div className="relative w-full sm:w-auto">
+          <div className="relative w-full sm:w-auto group">
             <Search
-              size={14}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={15}
+              className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors duration-300 ${search ? 'text-[var(--primary)]' : 'text-gray-400 group-hover:text-gray-500'}`}
             />
             <input
               type="text"
               placeholder="ابحث عن منتج..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pr-9 pl-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none bg-white w-full sm:w-52 focus:border-green-400 transition-colors"
+              className={`pr-10 pl-4 py-2.5 rounded-2xl border text-sm outline-none w-full sm:w-60 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-md focus:border-[var(--primary)] ${
+                search ? 'bg-[var(--primary-light)]/30 border-[var(--primary)]/50 text-[var(--primary)] placeholder-[var(--primary)]/50 font-medium' : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+              }`}
             />
           </div>
 
-          <div className="relative w-full sm:w-auto">
-            <ChevronDown
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
-            <select
+          <div className="relative w-full sm:w-auto group">
+            <CustomSelect
               value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="appearance-none w-full sm:w-44 pr-4 pl-8 py-2.5 border border-gray-200 rounded-xl text-sm outline-none bg-white focus:border-green-400 cursor-pointer"
-            >
-              <option value="">كل الفئات</option>
-              {categories.map((c) => (
-                <option key={c._id} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              onChange={setFilterCategory}
+              options={[
+                { value: "", label: "كل الفئات" },
+                ...categories.map(c => ({ value: c.name, label: c.name }))
+              ]}
+              placeholder="كل الفئات"
+              className="w-full sm:w-44"
+            />
           </div>
 
-          <div className="relative w-full sm:w-auto">
-            <ChevronDown
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
-            <select
+          <div className="relative w-full sm:w-auto group">
+            <CustomSelect
               value={filterBrand}
-              onChange={(e) => setFilterBrand(e.target.value)}
-              className="appearance-none w-full sm:w-44 pr-4 pl-8 py-2.5 border border-gray-200 rounded-xl text-sm outline-none bg-white focus:border-green-400 cursor-pointer"
-            >
-              <option value="">كل الماركات</option>
-              {brands.map((b) => (
-                <option key={b._id} value={b.name}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
+              onChange={setFilterBrand}
+              options={[
+                { value: "", label: "كل الماركات" },
+                ...brands.map(b => ({ value: b.name, label: b.name }))
+              ]}
+              placeholder="كل الماركات"
+              className="w-full sm:w-44"
+            />
           </div>
 
-          <div className="relative w-full sm:w-auto">
-            <ChevronDown
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
-            <select
+          <div className="relative w-full sm:w-auto group">
+            <CustomSelect
               value={filterType}
-              onChange={(e) => {
-                const v = e.target.value as ProductsFilterType;
-                setFilterType(v);
-                if (v) setViewMode("cards");
+              onChange={(v) => {
+                const val = v as ProductsFilterType;
+                setFilterType(val);
+                if (val) setViewMode("cards");
               }}
-              className="appearance-none w-full sm:w-48 pr-4 pl-8 py-2.5 border border-gray-200 rounded-xl text-sm outline-none bg-white focus:border-green-400 cursor-pointer"
-            >
-              <option value="">كل المنتجات</option>
-              <option value="offer">عروض فقط</option>
-              <option value="bestseller">الأكثر مبيعاً فقط</option>
-            </select>
+              options={[
+                { value: "", label: "كل المنتجات" },
+                { value: "offer", label: "عروض فقط" },
+                { value: "bestseller", label: "الأكثر مبيعاً فقط" }
+              ]}
+              placeholder="كل المنتجات"
+              className="w-full sm:w-48"
+            />
           </div>
 
           {hasFilter && (
             <button
               type="button"
               onClick={clearFilters}
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-red-100 text-red-400 text-sm hover:bg-red-50 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl border border-red-200 bg-red-50 text-red-600 text-sm font-bold hover:bg-red-100 hover:shadow-sm transition-all cursor-pointer"
             >
-              <X size={13} /> مسح
+              <X size={15} strokeWidth={2.5} /> مسح
             </button>
           )}
         </div>
@@ -482,7 +539,7 @@ export default function ProductsViews(p: ProductsViewsProps) {
       </div>
 
       <div
-        className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden w-full min-w-0 ${
+        className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden w-full min-w-0 flex flex-col ${
           layoutMode === "cards" ? "min-h-[760px]" : "min-h-[680px]"
         }`}
       >
@@ -542,6 +599,7 @@ export default function ProductsViews(p: ProductsViewsProps) {
           </div>
         </div>
 
+        <div className="flex-1 flex flex-col overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div
@@ -602,6 +660,11 @@ export default function ProductsViews(p: ProductsViewsProps) {
                       </td>
                       <td className="px-6 py-3.5">
                         <div className="flex flex-wrap gap-1.5">
+                          {prod.isAvailable === false && (
+                            <span className="glass-badge-out-of-stock">
+                              غير متوفر
+                            </span>
+                          )}
                           {prod.isBestSeller && <BestSellerBadge />}
                           {prod.isOffer && (
                             <OfferBadge
@@ -609,7 +672,7 @@ export default function ProductsViews(p: ProductsViewsProps) {
                               amount={prod.offerDiscountAmount}
                             />
                           )}
-                          {!prod.isBestSeller && !prod.isOffer && (
+                          {prod.isAvailable !== false && !prod.isBestSeller && !prod.isOffer && (
                             <span className="text-xs text-gray-300">—</span>
                           )}
                         </div>
@@ -636,8 +699,23 @@ export default function ProductsViews(p: ProductsViewsProps) {
                   ))}
                   {currentProducts.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="text-center py-16 text-gray-400 text-sm">
-                        لا يوجد منتجات
+                      <td colSpan={7} className="text-center py-16">
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="relative w-24 h-24 flex items-center justify-center">
+                            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 70%)" }} />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="pkg-orbit w-2 h-2 rounded-full bg-green-300/70" />
+                              <div className="pkg-orbit2 w-2 h-2 rounded-full bg-emerald-300/60" />
+                            </div>
+                            <div className="pkg-float w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg relative z-10" style={{ background: "linear-gradient(135deg,#f0fdf4,#dcfce7)", border: "1.5px solid rgba(134,239,172,0.5)" }}>
+                              <PackageX size={30} className="text-green-400" strokeWidth={1.5} />
+                            </div>
+                          </div>
+                          <div className="pkg-fu">
+                            <p className="text-sm font-bold text-gray-700">لا توجد منتجات حالياً</p>
+                          </div>
+                          <p className="text-xs text-gray-400 max-w-[220px] pkg-fu2">لم يتم العثور على أي منتجات تطابق بحثك أو لم تقم بإضافة منتجات بعد.</p>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -683,6 +761,11 @@ export default function ProductsViews(p: ProductsViewsProps) {
                           <span className="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded-full">
                             {getName(prod.brand)}
                           </span>
+                          {prod.isAvailable === false && (
+                            <span className="text-[10px] bg-red-50 text-red-700 border border-red-200 px-1.5 py-0.5 rounded-full">
+                              غير متوفر
+                            </span>
+                          )}
                           {prod.isBestSeller && <BestSellerBadge />}
                           {prod.isOffer && (
                             <OfferBadge
@@ -719,8 +802,13 @@ export default function ProductsViews(p: ProductsViewsProps) {
                   ))}
                   {currentProducts.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="text-center py-12 text-gray-400 text-sm">
-                        لا يوجد منتجات
+                      <td colSpan={4} className="text-center py-12">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="pkg-float w-14 h-14 rounded-2xl flex items-center justify-center shadow-md" style={{ background: "linear-gradient(135deg,#f0fdf4,#dcfce7)", border: "1.5px solid rgba(134,239,172,0.5)" }}>
+                            <PackageX size={24} className="text-green-400" strokeWidth={1.5} />
+                          </div>
+                          <p className="text-xs font-bold text-gray-600 pkg-fu">لا توجد منتجات حالياً</p>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -728,7 +816,6 @@ export default function ProductsViews(p: ProductsViewsProps) {
               </table>
             </div>
 
-            <PaginationBar currentPage={currentPage} pages={pages} setCurrentPage={setCurrentPage} />
           </>
         ) : (
           <>
@@ -736,7 +823,7 @@ export default function ProductsViews(p: ProductsViewsProps) {
                 ── GLASSY Cards View ──
             ══════════════════════════════════════ */}
             <div className="cards-grid-bg px-4 sm:px-6 py-6">
-              <div className="grid grid-cols-1 gap-5 sm:gap-6 sm:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
+              <div className="grid grid-cols-1 gap-5 sm:gap-6 sm:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))] max-w-[320px] mx-auto sm:max-w-none">
                 {currentProducts.map((prod, idx) => (
                   <article
                     key={prod._id}
@@ -760,8 +847,13 @@ export default function ProductsViews(p: ProductsViewsProps) {
                       )}
 
                       {/* Floating badges */}
-                      {(prod.isBestSeller || prod.isOffer) && (
+                      {(prod.isBestSeller || prod.isOffer || prod.isAvailable === false) && (
                         <div className="glass-badges-wrap">
+                          {prod.isAvailable === false && (
+                            <span className="glass-badge-out-of-stock">
+                              غير متوفر
+                            </span>
+                          )}
                           {prod.isBestSeller && <BestSellerBadge />}
                           {prod.isOffer && (
                             <OfferBadge
@@ -775,21 +867,21 @@ export default function ProductsViews(p: ProductsViewsProps) {
 
                     {/* ── Body ── */}
                     <div className="glass-card-body">
-                      {/* Name */}
-                      <h3 className="text-sm font-bold text-gray-800 leading-snug line-clamp-2 min-h-[2.5rem] tracking-tight">
-                        {prod.name}
-                      </h3>
-
-                      {/* Price */}
-                      <div className="glass-price-tag">
-                        <span className="text-base font-extrabold tabular-nums" style={{ color: "var(--primary)" }}>
-                          {prod.price}
-                        </span>
-                        <span className="text-xs font-normal text-gray-400">ج.م</span>
+                      {/* Name & Price */}
+                      <div className="flex flex-row sm:flex-col justify-between sm:justify-start items-start gap-2">
+                        <h3 className="text-sm font-bold text-gray-800 leading-snug line-clamp-2 sm:min-h-[2.5rem] tracking-tight flex-1">
+                          {prod.name}
+                        </h3>
+                        <div className="glass-price-tag shrink-0 mt-0 sm:mt-1">
+                          <span className="text-sm sm:text-base font-extrabold tabular-nums" style={{ color: "var(--primary)" }}>
+                            {prod.price}
+                          </span>
+                          <span className="text-[10px] sm:text-xs font-normal text-gray-400">ج.م</span>
+                        </div>
                       </div>
 
                       {/* Chips */}
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-1 mt-0.5 sm:mt-0">
                         <span className="glass-chip-category">{getName(prod.category)}</span>
                         <span className="glass-chip-brand">{getName(prod.brand)}</span>
                       </div>
@@ -828,17 +920,39 @@ export default function ProductsViews(p: ProductsViewsProps) {
               </div>
 
               {currentProducts.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-24 gap-3">
-                  <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-3xl shadow-inner">
-                    📦
+                <div className="flex flex-col items-center justify-center py-24 gap-5">
+                  <div className="relative w-28 h-28 flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 70%)" }} />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="pkg-orbit  w-2.5 h-2.5 rounded-full bg-green-300/70" />
+                      <div className="pkg-orbit2 w-2   h-2   rounded-full bg-emerald-300/60" />
+                    </div>
+                    <div className="pkg-float w-20 h-20 rounded-3xl flex items-center justify-center shadow-xl relative z-10" style={{ background: "linear-gradient(135deg,#f0fdf4,#dcfce7)", border: "1.5px solid rgba(134,239,172,0.5)" }}>
+                      <PackageX size={36} className="text-green-400" strokeWidth={1.5} />
+                    </div>
                   </div>
-                  <p className="text-gray-400 text-sm font-medium">لا يوجد منتجات</p>
+                  <div className="text-center pkg-fu">
+                    <p className="text-base font-bold text-gray-700">لا يوجد منتجات بعد</p>
+                  </div>
+                  <p className="text-sm text-gray-400 text-center max-w-[220px] pkg-fu2">
+                    ابدأ بإضافة أول منتج وستظهر بطاقاته هنا بشكل جميل
+                  </p>
+                  <div className="pkg-fu3 flex gap-1.5">
+                    {[0,1,2].map(i => (
+                      <div key={i} className="w-1.5 h-1.5 rounded-full bg-green-300"
+                        style={{ animation: `floatPkg 1.1s ease-in-out infinite`, animationDelay: `${i*0.18}s` }} />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-
-            <PaginationBar currentPage={currentPage} pages={pages} setCurrentPage={setCurrentPage} />
           </>
+        )}
+        </div>
+
+        {/* ── Pagination always pinned at bottom ── */}
+        {!loading && (
+          <PaginationBar currentPage={currentPage} pages={pages} setCurrentPage={setCurrentPage} />
         )}
       </div>
 

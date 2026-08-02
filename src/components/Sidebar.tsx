@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
+  Archive,
   Tag,
   Building2,
   LogOut,
@@ -70,7 +71,7 @@ function Sidebar({ isMobile, onCloseMobile, user }: SidebarProps) {
       <button
         type="button"
         onClick={() => setCollapsed(v => !v)}
-        className="absolute -left-3 top-16 w-6 h-6 rounded-full border border-gray-200 bg-white flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors z-10"
+        className="absolute -left-3 top-28 w-6 h-6 rounded-full border border-gray-200 bg-white flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors z-10"
       >
         <ChevronRight
           size={14}
@@ -134,14 +135,14 @@ function SidebarContent({
               key={path}
               to={path}
               onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+              className={`group flex items-center gap-3 px-3 py-3 rounded-2xl text-sm transition-all duration-300 ${
                 active
-                  ? "font-medium shadow-sm"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                  ? "font-bold shadow-[0_4px_15px_-3px_rgba(26,92,58,0.2)]"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-[var(--primary)] hover:translate-x-[-4px]"
               } ${collapsed && !isMobile ? "justify-center !px-0" : ""}`}
               style={active ? { background: "var(--primary-light)", color: "var(--primary)" } : {}}
             >
-              <Icon size={18} />
+              <Icon size={18} className={`transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`} />
               {(!collapsed || isMobile) && <span>{label}</span>}
             </Link>
           );
@@ -151,13 +152,13 @@ function SidebarContent({
       <div className="border-t border-gray-100 pt-3 w-full">
         <div
           onClick={handleLogout}
-          className={`flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 cursor-pointer transition-colors ${
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl hover:bg-red-50 cursor-pointer transition-all duration-300 group ${
             collapsed && !isMobile ? "justify-center !px-0" : ""
           }`}
         >
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs text-white font-medium shrink-0"
-            style={{ background: "var(--primary)" }}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-xs text-white font-bold shrink-0 shadow-sm"
+            style={{ background: "linear-gradient(135deg, var(--primary), #114227)" }}
           >
             {initial}
           </div>
