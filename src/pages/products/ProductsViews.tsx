@@ -5,14 +5,12 @@ import {
   Trash2,
   Search,
   X,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
   Table2,
   Star,
   Tag,
-  Upload,
   PackageX,
 } from "lucide-react";
 import ProductModal from "../../components/ProductModal";

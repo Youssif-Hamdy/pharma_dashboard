@@ -1,4 +1,4 @@
-import { Bell, Menu, ClipboardList, Search } from 'lucide-react'
+import { Bell, Menu, ClipboardList} from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useSidebar } from '../context/SidebarContext'
 import { useNotifications } from './NotificationContext'
