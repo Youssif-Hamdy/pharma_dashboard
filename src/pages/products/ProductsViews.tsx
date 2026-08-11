@@ -96,25 +96,29 @@ const glassStyles = `
   /* ── Card shell ── */
   .glass-card {
     animation: cardFadeUp 0.42s cubic-bezier(0.22,1,0.36,1) both;
-    background: rgba(255,255,255,0.82);
-    border: 1px solid rgba(255,255,255,0.7);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow:
-      0 2px 10px rgba(0,0,0,0.07),
-      0 1px 0   rgba(255,255,255,0.9) inset;
+      0 4px 20px rgba(0, 0, 0, 0.05),
+      0 1px 0 rgba(255, 255, 255, 0.8) inset;
     transition:
       transform    0.3s cubic-bezier(0.22,1,0.36,1),
       box-shadow   0.3s ease,
-      border-color 0.3s ease;
+      border-color 0.3s ease,
+      background   0.3s ease;
     position: relative;
     overflow: hidden; /* clips image to card corners */
   }
   .glass-card:hover {
-    transform: translateY(-5px) scale(1.01);
+    transform: translateY(-5px) scale(1.02);
     box-shadow:
-      0 18px 36px rgba(0,0,0,0.11),
-      0 4px  12px rgba(0,0,0,0.06),
-      0 1px  0   rgba(255,255,255,0.9) inset;
-    border-color: rgba(255,255,255,0.9);
+      0 20px 40px rgba(0, 0, 0, 0.08),
+      0 8px  16px rgba(0, 0, 0, 0.04),
+      0 1px  0   rgba(255, 255, 255, 0.9) inset;
+    border-color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.55);
   }
 
   /* ── Shine layer (pointer-events:none so it can't block img) ── */
@@ -124,7 +128,7 @@ const glassStyles = `
     inset: 0;
     background: linear-gradient(
       140deg,
-      rgba(255,255,255,0.45) 0%,
+      rgba(255,255,255,0.5) 0%,
       rgba(255,255,255,0)    55%
     );
     pointer-events: none;
@@ -132,41 +136,37 @@ const glassStyles = `
     border-radius: inherit;
   }
 
-  /* ── Image wrapper ── */
+/* ── Image wrapper ── */
   .glass-img-wrapper {
     position: relative;
     width: 100%;
-    padding-top: 60%;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
-    background: #f1f5f9;
     z-index: 1;
+    border-radius: 16px 16px 0 0;
   }
-  @media (min-width: 640px) {
-    .glass-img-wrapper {
-      padding-top: 70%;
-    }
-  }
-  .glass-img-wrapper img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.45s cubic-bezier(0.22,1,0.36,1);
-    z-index: 1;
-  }
-  .glass-card:hover .glass-img-wrapper img {
-    transform: scale(1.05);
-  }
+.glass-img-wrapper img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: full;
+  object-position: center;
+  transform: scale(1.25); /* زوّد الرقم لو لسا فيه بياض ظاهر */
+  transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), filter 0.45s ease;
+}
+.glass-card:hover .glass-img-wrapper img {
+  transform: scale(1.24); /* على الهوفر تكبير أكتر شوية */
+}
 
+  /* شيلنا الـ ::after بتاع الـ fade الأبيض خالص */
   /* Subtle bottom fade so text area feels separated from image */
   .glass-img-wrapper::after {
     content: '';
     position: absolute;
     bottom: 0; left: 0; right: 0;
-    height: 48px;
-    background: linear-gradient(to bottom, transparent, rgba(241,245,249,0.55));
+    height: 56px;
+    background: linear-gradient(to bottom, transparent, rgba(232,240,254,0.7));
     pointer-events: none;
     z-index: 2;
   }
