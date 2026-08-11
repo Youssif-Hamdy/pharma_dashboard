@@ -1,4 +1,5 @@
 const AUTH_TOKEN_KEY = 'pharma_auth_token'
+const AUTH_REFRESH_TOKEN_KEY = 'pharma_auth_refresh_token'
 const AUTH_USER_KEY = 'pharma_auth_user'
 
 export type StoredUser = {
@@ -11,12 +12,22 @@ export function getStoredToken(): string | null {
   return localStorage.getItem(AUTH_TOKEN_KEY)
 }
 
+export function getStoredRefreshToken(): string | null {
+  return localStorage.getItem(AUTH_REFRESH_TOKEN_KEY)
+}
+
 export function setStoredToken(token: string | null): void {
   if (token) localStorage.setItem(AUTH_TOKEN_KEY, token)
   else {
     localStorage.removeItem(AUTH_TOKEN_KEY)
     localStorage.removeItem(AUTH_USER_KEY)
+    localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY)
   }
+}
+
+export function setStoredRefreshToken(token: string | null): void {
+  if (token) localStorage.setItem(AUTH_REFRESH_TOKEN_KEY, token)
+  else localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY)
 }
 
 export function getStoredUser(): StoredUser | null {

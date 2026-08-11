@@ -1,5 +1,5 @@
 import api from './axios'
-import { setStoredToken, setStoredUser } from './authStorage'
+import { setStoredToken, setStoredUser, setStoredRefreshToken } from './authStorage'
 
 export type AuthUser = {
   id: string
@@ -11,6 +11,7 @@ export type AuthUser = {
 type AuthData = {
   admin: AuthUser   // ← كان user
   token: string
+  refreshToken: string
 }
 
 type AuthApiEnvelope = {
@@ -25,6 +26,7 @@ export async function login(email: string, password: string): Promise<AuthData> 
     throw new Error(data.message || 'فشل تسجيل الدخول')
   }
   setStoredToken(data.data.token)
+  setStoredRefreshToken(data.data.refreshToken)
   setStoredUser({
     id: data.data.admin.id,       // ← كان user
     email: data.data.admin.email, // ← كان user
@@ -39,6 +41,9 @@ export async function fetchMe(): Promise<AuthData> {
     throw new Error(data.message || 'جلسة غير صالحة')
   }
   setStoredToken(data.data.token)
+  if (data.data.refreshToken) {
+    setStoredRefreshToken(data.data.refreshToken)
+  }
   setStoredUser({
     id: data.data.admin.id,       // ← كان user
     email: data.data.admin.email, // ← كان user
