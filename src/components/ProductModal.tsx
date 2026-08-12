@@ -1,6 +1,172 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { X, ChevronDown, Upload, Trash2, Check, Search, Star, Tag, Package } from "lucide-react";
+import { X, ChevronDown, Upload, Trash2, Check, Search, Star, Tag, Package, Crop as CropIcon } from "lucide-react";
+import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+
+// ─── Image Crop Tool ────────────────────────────────────────────────
+type AspectRatio = "1:1" | "4:3" | "16:9" | "free";
+const RATIOS: { label: string; value: AspectRatio; aspect?: number }[] = [
+  { label: "1:1",  value: "1:1",  aspect: 1 },
+  { label: "4:3",  value: "4:3",  aspect: 4 / 3 },
+  { label: "16:9", value: "16:9", aspect: 16 / 9 },
+  { label: "حر",   value: "free", aspect: undefined },
+];
+
+function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: number) {
+  return centerCrop(
+    makeAspectCrop(
+      {
+        unit: '%',
+        width: 90,
+      },
+      aspect,
+      mediaWidth,
+      mediaHeight,
+    ),
+    mediaWidth,
+    mediaHeight,
+  )
+}
+
+function ImageCropTool({
+  src,
+  onCrop,
+  onCancel,
+}: {
+  src: string;
+  onCrop: (file: File, previewUrl: string) => void;
+  onCancel: () => void;
+}) {
+  const [ratio, setRatio] = useState<AspectRatio>("1:1");
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  const currentRatio = RATIOS.find(r => r.value === ratio)!;
+
+  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    const { width, height } = e.currentTarget;
+    if (currentRatio.aspect) {
+      setCrop(centerAspectCrop(width, height, currentRatio.aspect));
+    }
+  }
+
+  useEffect(() => {
+    if (imgRef.current && currentRatio.aspect) {
+      const { width, height } = imgRef.current;
+      setCrop(centerAspectCrop(width, height, currentRatio.aspect));
+    } else if (!currentRatio.aspect) {
+      // free crop, don't force crop change but maybe reset
+    }
+  }, [currentRatio.aspect]);
+
+  const applyCrop = () => {
+    if (!completedCrop || !imgRef.current) return;
+    const canvas = document.createElement("canvas");
+    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+    canvas.width = completedCrop.width * scaleX;
+    canvas.height = completedCrop.height * scaleY;
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(
+      imgRef.current,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    canvas.toBlob(blob => {
+      if (!blob) return;
+      const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+      const url = URL.createObjectURL(blob);
+      onCrop(file, url);
+    }, "image/jpeg", 0.92);
+  };
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 9999,
+      background: "rgba(0,0,0,0.7)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 16,
+    }}>
+      <div style={{
+        background: "#fff", borderRadius: 20, padding: 20, width: "100%", maxWidth: 500,
+        boxShadow: "0 25px 60px rgba(0,0,0,0.3)",
+        display: "flex", flexDirection: "column", gap: 14,
+      }}>
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <CropIcon size={16} style={{ color: "var(--primary)" }} />
+            <span style={{ fontWeight: 700, fontSize: 14, color: "#1f2937" }}>تعديل وقص الصورة</span>
+          </div>
+          <button type="button" onClick={onCancel}
+            style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid #e5e7eb", background: "#f9fafb", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <X size={13} />
+          </button>
+        </div>
+
+        {/* Ratio Buttons */}
+        <div style={{ display: "flex", gap: 6 }}>
+          {RATIOS.map(r => (
+            <button key={r.value} type="button" onClick={() => setRatio(r.value)}
+              style={{
+                flex: 1, padding: "5px 0", borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: "pointer",
+                border: ratio === r.value ? "1.5px solid var(--primary)" : "1.5px solid #e5e7eb",
+                background: ratio === r.value ? "rgba(34,197,94,0.08)" : "#f9fafb",
+                color: ratio === r.value ? "var(--primary)" : "#6b7280",
+                transition: "all 0.15s",
+              }}>
+              {r.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Preview Crop Area */}
+        <div style={{
+            width: "100%", maxHeight: "60vh", overflow: "auto", borderRadius: 12,
+            background: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center"
+          }}
+        >
+          <ReactCrop
+            crop={crop}
+            onChange={(_, percentCrop) => setCrop(percentCrop)}
+            onComplete={(c) => setCompletedCrop(c)}
+            aspect={currentRatio.aspect}
+          >
+            <img
+              ref={imgRef}
+              src={src}
+              alt="Crop me"
+              onLoad={onImageLoad}
+              crossOrigin="anonymous"
+              style={{ maxHeight: "60vh", maxWidth: "100%", objectFit: "contain" }}
+            />
+          </ReactCrop>
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+          <button type="button" onClick={onCancel}
+            style={{ padding: "8px 16px", borderRadius: 10, border: "1px solid #e5e7eb", background: "#f9fafb", fontSize: 13, color: "#6b7280", cursor: "pointer", fontWeight: 500 }}>
+            إلغاء
+          </button>
+          <button type="button" onClick={applyCrop}
+            style={{ padding: "8px 20px", borderRadius: 10, border: "none", background: "var(--primary)", fontSize: 13, color: "#fff", cursor: "pointer", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+            <Check size={13} /> تطبيق القص
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface Category {
   _id: string;
@@ -343,6 +509,7 @@ export default function ProductModal({
   const [preview, setPreview] = useState<string | null>(
     currentImageUrl || null,
   );
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -364,8 +531,20 @@ export default function ProductModal({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (!file) return;
+    // Open crop tool instead of directly setting
+    const objectUrl = URL.createObjectURL(file);
+    setCropSrc(objectUrl);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCropDone = (file: File, url: string) => {
     onImageChange(file);
-    setPreview(URL.createObjectURL(file));
+    setPreview(url);
+    setCropSrc(null);
+  };
+
+  const handleCropCancel = () => {
+    setCropSrc(null);
   };
 
   const handleRemoveImage = () => {
@@ -375,6 +554,12 @@ export default function ProductModal({
   };
 
   return (
+    <>
+      {/* Crop tool portal */}
+      {cropSrc && createPortal(
+        <ImageCropTool src={cropSrc} onCrop={handleCropDone} onCancel={handleCropCancel} />,
+        document.body
+      )}
     <div
       className="fixed inset-0 flex items-center justify-center z-50 p-4"
       style={overlayStyle[phase]}
@@ -408,25 +593,35 @@ export default function ProductModal({
             صورة المنتج (اختياري)
           </label>
           {preview ? (
-            <div className="relative w-full h-40 rounded-xl overflow-hidden border border-gray-200 group">
+            <div className="relative w-32 h-32 mx-auto rounded-xl overflow-hidden border border-gray-200 group bg-gray-50 flex-shrink-0">
               <img
                 src={preview}
                 alt="product"
-                className="w-full h-full object-contain bg-gray-50"
+                className="w-full h-full object-cover"
               />
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => setCropSrc(preview)}
+                  className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg bg-white/95 text-gray-700 cursor-pointer shadow-md font-bold hover:bg-white transition-colors"
+                >
+                  <CropIcon size={12} /> تعديل
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg bg-white/95 text-gray-700 cursor-pointer shadow-md font-bold hover:bg-white transition-colors"
+                >
+                  <Upload size={12} /> تغيير
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={handleRemoveImage}
-                className="absolute top-2 left-2 w-7 h-7 rounded-lg bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                className="absolute top-1.5 left-1.5 w-6 h-6 rounded-md bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm"
               >
-                <Trash2 size={13} />
-              </button>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-2 left-2 flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm"
-              >
-                <Upload size={12} /> تغيير
+                <Trash2 size={11} />
               </button>
             </div>
           ) : (
@@ -685,5 +880,6 @@ export default function ProductModal({
         </div>
       </div>
     </div>
+    </>
   );
 }
