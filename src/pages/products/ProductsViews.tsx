@@ -195,6 +195,20 @@ const glassStyles = `
     gap: 4px;
     z-index: 4;
   }
+  .glass-badge-bestseller {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #92400e;
+    background: rgba(255,251,235,0.95);
+    border: 1px solid rgba(251,191,36,0.5);
+    box-shadow: 0 1px 4px rgba(245,158,11,0.2);
+    padding: 2px 6px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
   .glass-badge-offer {
     animation: badgePop 0.35s cubic-bezier(0.22,1,0.36,1) 0.15s both;
     display: inline-flex;
@@ -628,7 +642,11 @@ export default function ProductsViews(p: ProductsViewsProps) {
                               غير متوفر
                             </span>
                           )}
-                          {prod.isBestSeller && <BestSellerBadge />}
+                          {prod.isBestSeller && (
+                            <span className="glass-badge-bestseller">
+                              <Star size={9} fill="#f59e0b" /> الأكثر مبيعاً
+                            </span>
+                          )}
                           {prod.isOffer && (
                             <OfferBadge
                               percent={prod.offerDiscountPercent}
@@ -729,7 +747,11 @@ export default function ProductsViews(p: ProductsViewsProps) {
                               غير متوفر
                             </span>
                           )}
-                          {prod.isBestSeller && <BestSellerBadge />}
+                          {prod.isBestSeller && (
+                            <span className="glass-badge-bestseller">
+                              <Star size={9} fill="#f59e0b" /> الأكثر مبيعاً
+                            </span>
+                          )}
                           {prod.isOffer && (
                             <OfferBadge
                               percent={prod.offerDiscountPercent}
